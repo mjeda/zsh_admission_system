@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Action\FetchInformationAction;
+use App\Action\ReloadResult;
+use App\Action\ResultValidateAction;
 use App\Jobs\getResultJob;
 use App\Models\Admission;
 use App\Models\Course;
+use App\Models\Result;
 use App\Models\SelectedCourse;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -35,18 +39,18 @@ class AdmissionController extends Controller
         return view("admissions.show", compact('courses'))->with("admission", $admission);
     }
 
-    public function update(Admission $admission)
+    public function update(Admission $admission, ReloadResult $resultService)
     {
         //get result from NECTA
-        getResultJob::dispatch($admission);
+        $resultService->reload($admission);
 
         //extra index
         if($admission->index_number_2){
-            getResultJob::dispatch($admission, $admission->index_number_2 );
+            $resultService->reload($admission, $admission->index_number_2 );
         }
 
         if($admission->index_number_3){
-            getResultJob::dispatch($admission, $admission->index_number_3 );
+            $resultService->reload($admission, $admission->index_number_3 );
         }
 
         return back()->with('success', 'Result fetched again');
