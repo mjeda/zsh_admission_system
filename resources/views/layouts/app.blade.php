@@ -240,7 +240,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/admin/log-viewer">
                                 <span data-feather="layers" class="align-text-bottom"></span>
-                                <i class="fa fa-lock text-success"></i> Activity Log
+                                <i class="fa fa-list text-success"></i> Activity Log
                             </a>
                         </li>
                     @endcan
