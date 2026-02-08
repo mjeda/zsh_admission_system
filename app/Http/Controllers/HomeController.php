@@ -16,7 +16,21 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    // public function index()
+    // {
+    //     if(auth()->user()->type == "candidate") {
+    //         return redirect()->route('portal-dashboard');
+    //     } elseif (auth()->user()->type == "VTA/VETA") {
+    //         return redirect()->route('portal-admission', 'VTA/VETA');
+    //     }
+
+    //     $veta = Intake::where('type', 'VTA/VETA')->where('status', 'Open')->latest()->first('status');
+    //     $diploma = Intake::where('type', 'Diploma')->where('status', 'Open')->latest()->first('status');
+
+    //     return view('home', compact('diploma', 'veta'));
+    // }
+
+    public function index(Request $request)
     {
         if(auth()->user()->type == "candidate") {
             return redirect()->route('portal-dashboard');
@@ -24,14 +38,6 @@ class HomeController extends Controller
             return redirect()->route('portal-admission', 'VTA/VETA');
         }
 
-        $veta = Intake::where('type', 'VTA/VETA')->where('status', 'Open')->latest()->first('status');
-        $diploma = Intake::where('type', 'Diploma')->where('status', 'Open')->latest()->first('status');
-
-        return view('home', compact('diploma', 'veta'));
-    }
-
-    public function dashboard($type, Request $request)
-    {
         if ($request->input('intake')){
             $last_intake = Intake::findOrFail($request->input('intake'));
         } else {

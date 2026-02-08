@@ -34,7 +34,7 @@ Route::middleware('auth')->group(function(){
 });
 
 Route::middleware(['isAdmin', 'auth'])->group( function (){
-Route::get('{type}/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+// Route::get('{type}/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
 // Admission
 Route::resource("admission", AdmissionController::class)->except("destroy", "update")->middleware('permission:view admission');
 Route::get('admission/update/{admission}', [AdmissionController::class, 'update'])->name('admission.update')->middleware('permission:edit admission');
