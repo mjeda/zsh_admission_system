@@ -39,6 +39,7 @@ Route::middleware(['isAdmin', 'auth'])->group( function (){
 Route::resource("admission", AdmissionController::class)->except("destroy", "update")->middleware('permission:view admission');
 Route::get('admission/update/{admission}', [AdmissionController::class, 'update'])->name('admission.update')->middleware('permission:edit admission');
 Route::post('admission/change/{selected_course}', [AdmissionController::class, 'changeCourse'])->name('admission.course.update')->middleware('permission:change admission course');
+Route::post('admission/change-intake/{admission}', [AdmissionController::class, 'changeIntake'])->name('admission.intake.update')->middleware('permission:change admission course');
 Route::post('admission/update-information/{admission}', [AdmissionController::class, 'updatedInfo'])->name('admission.update.info');
 Route::get('admission/reset-password/{user}', [AdmissionController::class, 'resetPassword'])->name('admission.reset.password');
 

@@ -8,6 +8,9 @@
         <button type="button" class="btn btn-success text-black" data-bs-toggle="modal" data-bs-target="#updateModal">
             Update info ...
         </button>
+        <button type="button" class="btn btn-warning text-black" data-bs-toggle="modal" data-bs-target="#changeIntakeModal">
+            Change Intake
+        </button>
         <a href="#" class="btn btn-secondary" onclick="PrintElem('#printer')"><i class="fa fa-print"></i> Print</a>
     </div>
     <div id="printer">
@@ -283,6 +286,42 @@
             </div>
         </div>
     </div>
+
+    <!-- Change Intake Modal -->
+    <div class="modal fade" id="changeIntakeModal" tabindex="-1" role="dialog" aria-labelledby="changeIntakeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changeIntakeModalLabel">Change Intake</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{{route('admission.intake.update', $admission->id)}}">
+                        @csrf
+                       <div class="form-group">
+                            <label for="intake">Select Intake</label>
+                            <select id="intake" name="intake" class="form-control">
+                                <option value="">--Select--</option>
+                                @forelse($intakes as $intake)
+                                    <option value="{{$intake->id}}"> {{ $intake->type . ' ' . $intake->title .' round '. $intake->round . ' for year ' . $intake->year }}</option>
+                                @empty
+                                @endforelse
+                            </select>
+                            @error('intake')
+                            <p class="text-danger">{{$message}}</p>
+                            @enderror
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -294,7 +333,7 @@
             btn.addEventListener("click", function () {
                 let courseId = this.getAttribute("data-id");
                 let form = document.getElementById("changeCourseForm");
-                
+
                 // Update the form action correctly
                 form.action = "{{ url('admission') }}/change/" + courseId ;
             });

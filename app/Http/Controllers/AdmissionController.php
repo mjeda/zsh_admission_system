@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Action\FetchInformationAction;
 use App\Action\ReloadResult;
-use App\Action\ResultValidateAction;
-use App\Jobs\getResultJob;
 use App\Models\Admission;
 use App\Models\Course;
-use App\Models\Result;
+use App\Models\Intake;
 use App\Models\SelectedCourse;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -36,7 +33,8 @@ class AdmissionController extends Controller
     public function show(Admission $admission){
         $admission->load('results');
         $courses = Course::all();
-        return view("admissions.show", compact('courses'))->with("admission", $admission);
+        $intakes = Intake::latest()->take(5)->get();
+        return view("admissions.show", compact('courses', 'intakes', 'admission'));
     }
 
     public function update(Admission $admission, ReloadResult $resultService)
@@ -62,6 +60,24 @@ class AdmissionController extends Controller
             'course' => 'required'
         ]) ;
 
+        $selected_course->course_id = $request->post('course');
+        $selected_course->save();
+
+        return back()->with('success', 'Course Changed');
+    }
+
+    public function changeIntake(Request $request, Admission $admission)
+    {
+        $request->validate([
+            'intake' => 'required'
+        ]) ;
+
+        $intake = Intake::find($request->post('intake'));
+        $admission->intake_id = $request->post('intake');
+        $admission->type = $intake->type;
+        $admission->save();
+
+        return back()->with('success', 'Intake Changed');
         $selected_course->course_id = $request->post('course');
         $selected_course->save();
 
