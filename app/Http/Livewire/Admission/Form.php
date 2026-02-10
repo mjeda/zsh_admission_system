@@ -71,7 +71,7 @@ class Form extends Component
 
         if ($this->currentStep == 4 and $this->admission->controlNumber->status == 'PAID') {
             $applicable_courses = json_decode($this->admission->course_payload);
-            $this->courses = Course::whereIn('id', $applicable_courses)->where('status', 'Open')->get();
+            $this->courses = Course::whereIn('id', $applicable_courses)->where('status', 'Open')->where('type', $this->admission->type)->get();
 
             $this->availableCourseIds = $this->courses->pluck('id')->toArray();
         }
@@ -179,7 +179,7 @@ class Form extends Component
                 'course_id' => $selected['id'],
             ]);
         }
-        
+
         $intake = Intake::where('status', 'Open')->latest()->first();
         $this->admission->update(
             [
@@ -281,7 +281,7 @@ class Form extends Component
     {
         if ($this->currentStep == 4 and $this->admission->controlNumber->status == 'PAID') {
             $applicable_courses = json_decode($this->admission->course_payload);
-            $this->courses = Course::whereIn('id', $applicable_courses)->where('status', 'Open')->get();
+            $this->courses = Course::whereIn('id', $applicable_courses)->where('status', 'Open')->where('type', $this->admission->type)->get();
 
             // $this->availableCourseIds = $this->courses->pluck('id')->toArray();
         }
