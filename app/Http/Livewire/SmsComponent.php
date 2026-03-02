@@ -8,6 +8,8 @@ use App\Jobs\SmsJob;
 use App\Models\Admission;
 use App\Models\Intake;
 use Livewire\Component;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SmsComponent extends Component
 {
@@ -39,17 +41,34 @@ class SmsComponent extends Component
         ]);
         // Send SMS logic goes here
         // $lastStudent = $this->admissions->values()->get(80);
-        
+
         // SendRegistrationControlNumberJob::dispatch($lastStudent);
         // $control_number = (new RegistrationControlNumber($lastStudent['id']))->generate();
         // $message = $this->message . " " . $control_number;
         // SmsJob::dispatch([$lastStudent['phone']], $message);
         // dd($lastStudent);
-        foreach ($this->admissions as $student) {
-            SmsJob::dispatch([$student['phone']], $this->message);
 
-            // SendRegistrationControlNumberJob::dispatch($student);
-        }
+        // foreach ($this->admissions as $student) {
+        //     SmsJob::dispatch([$student['phone']], $this->message);
+
+        //     SendRegistrationControlNumberJob::dispatch($student);
+        // }
+
+        $recipients = collect($this->admissions)->pluck('phone')->values()->toArray();
+
+        $data = [
+            'sender_id' => 'ZSH',
+            'message' => $this->message,
+            'recipient' => $recipients, // array ya namba zote
+            'service_id' => '73',
+            'api_token' => '9b4d1d9e-b0c1-4fc5-b5e6-db6243c55d84'
+        ];
+
+        $response = Http::withoutVerifying()->withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post('https://beep.zmotion.co.tz/api/message/send', $data);
+
+        Log::info($response->body());
 
         // Redirect back with a success message
         return redirect()->route("send.sms.form")->with("success", "SMS sent successfully.");

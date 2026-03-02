@@ -32,8 +32,18 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
-        if(auth()->user()->type == "candidate") {
-            return redirect()->route('portal-dashboard');
+        $user = auth()->user();
+        if($user->type == "candidate") {
+            // Angalia kama user ana application iliyokamilika (step 4, status SUBMITTED) kwa intake hiyo
+            $currentApplication = Admission::where('user_id', $user->id)
+                ->whereHas('intake', function ($query) {
+                    $query->whereYear('created_at', now()->year);
+                })->latest()->first();
+            if ($currentApplication->status == "SELECTED") {
+                return redirect()->route('portal-application');
+            } else {
+                return redirect()->route('portal-dashboard');
+            }
         } elseif (auth()->user()->type == "VTA/VETA") {
             return redirect()->route('portal-admission', 'VTA/VETA');
         }
