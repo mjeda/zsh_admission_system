@@ -21,7 +21,7 @@
 
                         <div class="alert alert-info">
                             @if($currentApplication->registrationControlNumber)
-                                📝 Tafadhali fanya malipo ya usaili kwa kutumia namba ya udhibiti (Control Number)
+                                📝 Tafadhali fanya malipo ya usaili ya tsh 50,000 kwa kutumia namba ya udhibiti (Control Number)
                                 ** <strong>{{ $currentApplication->registrationControlNumber->control_number }}</strong> **
                                 <br><br>
                                 Malipo yanaweza kufanyika kwa njia zifuatazo:<br>

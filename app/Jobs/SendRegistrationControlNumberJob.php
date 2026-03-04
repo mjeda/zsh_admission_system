@@ -10,6 +10,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\SmsJob;
+
 
 class SendRegistrationControlNumberJob implements ShouldQueue
 {
@@ -27,9 +29,9 @@ class SendRegistrationControlNumberJob implements ShouldQueue
     {
         $control_number = (new RegistrationControlNumber($this->student->id))->generate();
         Log::info("registration control number: " . $control_number);
-        // if ($control_number) {
-        //     $message = "Hongera! Maombi yako yamekubaliwa. Tafadhali lipia Tsh 50,000/- kupitia control number $control_number ili kujisajili. Fika chuoni Unguja au Africana kama upo Pemba kwa maelezo zaidi.";
-        //     SmsJob::dispatch([$this->student->phone], $message);
-        // }
+        if ($control_number) {
+            $message = "Hongera! Tunayo furaha kukujulisha kuwa maombi yako ya kujiunga na ZANZIBAR SCHOOL OF HEALTH yamekubaliwa";
+            SmsJob::dispatch([$this->student->phone], $message);
+        }
     }
 }
