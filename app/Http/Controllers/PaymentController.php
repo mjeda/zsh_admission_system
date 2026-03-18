@@ -210,8 +210,8 @@ class PaymentController extends Controller
                 ]);
             }
 
-            //Generate Receipt number
-            $receipt = 'ZSH' . date('ymdhis') . rand(2, 2);
+            //Generate Receipt number RC704-923305638
+            $receipt = 'RC' . rand(100, 999) . '-' . rand(100000000, 999999999);
 
 
             DB::transaction(function () use ($BillCtrNum, $BillTrxId, $BillPayRefId, $BillPymtReqId, $PaidAmt, $Date, $request, $receipt) {
@@ -246,13 +246,13 @@ class PaymentController extends Controller
             if($ControlNumber->admission->phone != null) {
 
                 //send SMS to customer
-                $sms = "Umefanikiwa kulipa " . number_format($PaidAmt) . " ada ya maombi ya kujiunga na ZSH kwa jina " . $ControlNumber->admission->full_name . ". Kumb.".$receipt;
+                $sms = "Hongera! Umefanikiwa kulipia bili " . $ControlNumber->control_number . "ya ". $ControlNumber->admission->full_name ." ". $ControlNumber->admission->last_name ." kiasi TZS " . number_format($PaidAmt) . " Kumb.".$receipt;
 
                 //clean phone numbers
                 $number = str_replace('-', '', $ControlNumber->admission->phone);
                 $number = str_replace(' ', '', $number);
 
-               // SmsJob::Dispatch($sms, $number);
+               SmsJob::Dispatch($sms, $number);
             }
 
             //get result from NECTA
