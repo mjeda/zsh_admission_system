@@ -26,7 +26,7 @@ class SelectedCourseController extends Controller
             $course_id = $request->get('course');
             $intake_id = $request->get('intake');
             $choice = $request->get('choice');
-            
+
             $selections = SelectedCourse::with("admission", "course")->where('priority', $choice)->where('course_id', $course_id)
             ->whereHas('admission', function ($query) use ($intake_id){
                     $query->where("intake_id", $intake_id)->where('status', 'SUBMITTED');
@@ -90,16 +90,13 @@ class SelectedCourseController extends Controller
 
     public function show(Request $request)
     {
-    //    $collections = Selection::with('admission','course')->where('course_id', $request->course)
-    //        ->where('intake_id', $request->intake)->get();
+        $collections = Selection::with('admission', 'course')
+            ->where('course_id', $request->course)
+            ->where('intake_id', $request->intake)
+            ->orderByRaw('(SELECT first_name FROM admissions WHERE admissions.id = selections.admission_id) ASC')
+            ->get();
 
-    $collections = Selection::with('admission', 'course')
-        ->where('course_id', $request->course)
-        ->where('intake_id', $request->intake)
-        ->orderByRaw('(SELECT first_name FROM admissions WHERE admissions.id = selections.admission_id) ASC')
-        ->get();
 
-        
        return view('selections.show', [
            'collections' => $collections,
            'intake' => $request->intake,
