@@ -88,13 +88,15 @@ class ResultValidateAction
                         $criteria_passed[] = $required_title;
                     } else {
                         // Check alternative if exists
-                        $alt_criteria = $alternatives->firstWhere('alternative_for', $required_title);
-                        if ($alt_criteria) {
-                            $alt_index = array_search(trim($alt_criteria->title), array_map(fn($p) => trim($p['title']), $passes));
-                            if ($alt_index !== false && $grades[$passes[$alt_index]['value']] >= $grades[$alt_criteria->value]) {
-                                $course_passes++;
-                                $points[] = $grades[$passes[$alt_index]['value']];
-                                $criteria_passed[] = $alt_criteria->title;
+                        $alt_criterias = $alternatives->where('alternative_for', $required_title);
+                        if ($alt_criterias) {
+                            foreach($alt_criterias as $alt_criteria) {
+                                $alt_index = array_search(trim($alt_criteria->title), array_map(fn($p) => trim($p['title']), $passes));
+                                if ($alt_index !== false && $grades[$passes[$alt_index]['value']] >= $grades[$alt_criteria->value]) {
+                                    $course_passes++;
+                                    $points[] = $grades[$passes[$alt_index]['value']];
+                                    $criteria_passed[] = $alt_criteria->title;
+                                }
                             }
                         }
                     }
