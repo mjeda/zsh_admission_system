@@ -33,7 +33,7 @@
                                         <h4 class="mb-0">
                                             <form action="{{route('admission.index')}}">
                                                 <input hidden="" type="text" name="status" class="form-control" value="">
-                                                <input hidden="" type="text" name="intake" class="form-control" value="{{ $last_intake->id }}">
+                                                <input hidden="" type="text" name="intake" class="form-control" value="{{ $last_intake?->id }}">
                                                 <button type="submit" value="Search" class="btn btn-link text-gray-300 text-dark font-weight-bold" style="font-size: 18px; text-decoration: none">
                                                     Total Applications
                                                 </button>
@@ -62,7 +62,7 @@
                                         <h4 class="mb-0">
                                             <form action="{{route('admission.index')}}">
                                                 <input hidden="" type="text" name="status" class="form-control" value="CREATED">
-                                                <input hidden="" type="text" name="intake" class="form-control" value="{{ $last_intake->id }}">
+                                                <input hidden="" type="text" name="intake" class="form-control" value="{{ $last_intake?->id }}">
                                                 <button type="submit" value="Search" class="btn btn-link text-gray-300 text-info font-weight-bold" style="font-size: 18px; text-decoration: none">
                                                     In-progress Applications
                                                 </button>
@@ -91,7 +91,7 @@
                                         <h4 class="mb-0">
                                             <form action="{{route('admission.index')}}">
                                                 <input hidden="" type="text" name="status" class="form-control" value="SUBMITTED">
-                                                <input hidden="" type="text" name="intake" class="form-control" value="{{ $last_intake->id }}">
+                                                <input hidden="" type="text" name="intake" class="form-control" value="{{ $last_intake?->id }}">
                                                 <button type="submit" value="Search" class="btn btn-link text-gray-300 text-success font-weight-bold" style="font-size: 18px; text-decoration: none">
                                                     Completed Applications
                                                 </button>

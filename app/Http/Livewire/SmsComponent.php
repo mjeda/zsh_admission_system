@@ -9,7 +9,6 @@ use App\Models\Admission;
 use App\Models\Intake;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class SmsComponent extends Component
 {
@@ -20,7 +19,16 @@ class SmsComponent extends Component
         # code...
         if ($this->intake != null and $this->status != null) {
             # code...
-            $this->admissions = Admission::where('status', $this->status)
+            $this->admissions = Admission::with('selection')
+            ->when($this->status == 'CREATED', function ($query) {
+                    $query->where('status', $this->status);
+                })
+            ->when(in_array($this->status, ['SELECTED', 'SUBMITTED']),
+                function ($query) {
+                    $query->whereHas('selection', function ($q) {
+                    $q->where('status', $this->status);
+                });
+            })
             ->where('intake_id', $this->intake)
             ->where('step', '>=', 2)->get();
         }
@@ -40,22 +48,9 @@ class SmsComponent extends Component
             'message' => 'required|string|max:550',
         ]);
         // Send SMS logic goes here
-        // $lastStudent = $this->admissions->values()->get(80);
-
-        // SendRegistrationControlNumberJob::dispatch($lastStudent);
-        // $control_number = (new RegistrationControlNumber($lastStudent['id']))->generate();
-        // $message = $this->message . " " . $control_number;
-        // SmsJob::dispatch([$lastStudent['phone']], $message);
-        // dd($lastStudent);
-
-        // foreach ($this->admissions as $student) {
-        //     SmsJob::dispatch([$student['phone']], $this->message);
-
-        //     SendRegistrationControlNumberJob::dispatch($student);
-        // }
 
         $recipients = collect($this->admissions)->pluck('phone')->values()->toArray();
-
+        // dd($recipients);
         $data = [
             'sender_id' => 'ZSH',
             'message' => $this->message,
@@ -68,7 +63,7 @@ class SmsComponent extends Component
             'Content-Type' => 'application/json',
         ])->post('https://beep.zmotion.co.tz/api/message/send', $data);
 
-        Log::info($response->body());
+        \Log::info($response->body());
 
         // Redirect back with a success message
         return redirect()->route("send.sms.form")->with("success", "SMS sent successfully.");

@@ -64,7 +64,7 @@ class HomeController extends Controller
             ->where('intake_id', $last_intake?->id)
             ->paginate(10);
 
-        $last_intake_id = $last_intake->id;
+        $last_intake_id = $last_intake?->id;
         $course_name = $course_value = $first_choice = $second_choice = $third_choice = array();
         $courses = Course::getCoursesWithAdmissionCounts($last_intake_id);
         # loop to add in array
