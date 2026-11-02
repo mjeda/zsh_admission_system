@@ -50,7 +50,8 @@ class NacteApiController extends Controller
             'first_name' => 'required|string',
             'second_name' => 'required|string',
             'surname' => 'required|string',
-            'form_four_year' => 'required|string'
+            'form_four_year' => 'required|string',
+            'form_four_index' => 'required|string',
         ]);
 
         $applicant =  Session::get('feedback_errors')[$data];
@@ -72,7 +73,7 @@ class NacteApiController extends Controller
                         'surname' => $request->input('surname'),
                         'mobile_number' => $request->input('phone_number'),
                         'email_address' => $request->input('email'),
-                        'form_four_indexnumber' => $applicant->form_four_indexnumber,
+                        'form_four_indexnumber' => $request->input('form_four_index'),
                         'form_four_year' => $request->input('form_four_year'),
                         'form_six_indexnumber' => '',
                         'form_six_year' => '',
@@ -86,14 +87,14 @@ class NacteApiController extends Controller
         ];
 
         // dd($postData);
-        
+
         $response = Http::withoutVerifying()->post("https://www.nacte.go.tz/nacteapi/index.php/api/addcorrection", [$postData]);
         if ($response->ok() && $response->json('code') != 400) {
             $message = $response->json('message'); $type = "success";
         } else {
             $message = $response->json('message'); $type = "error";
         }
-        
+
 
         return redirect()->route('nacte.feedback-error')->with($type, $message);
     }
@@ -146,7 +147,7 @@ class NacteApiController extends Controller
             'intake' => $intake,
             'year' => $year,
         ];
-        
+
         $response = Http::withoutVerifying()->post("https://www.nacte.go.tz/nacteapi/index.php/api/registerstudent", [$postData]);
         // dd($response->json());
         if ($response->ok() && $response->json('code') == 200) {
@@ -162,7 +163,7 @@ class NacteApiController extends Controller
         $programme = Course::findOrFail($programme);
         $intake = Intake::findOrFail($intake);
         $response = []; $student_enrolled = Session::get('student_enrolled');
-        
+
         foreach ($student_enrolled as $student) {
             $postData = [
                 'authorization' => '3609c1533f00d3960984221e1db474379d83677f',
@@ -172,10 +173,10 @@ class NacteApiController extends Controller
                 'intake' => $student->intake,
                 'year' => $student->academic_year,
             ];
-            
+
             $response = Http::withoutVerifying()->post("https://www.nacte.go.tz/nacteapi/index.php/api/registerstudent", [$postData]);
         }
-        
+
         if ($response->ok() && $response->json('code') == 200) {
             $message = $response->json('message'); $type = "success";
         } else {

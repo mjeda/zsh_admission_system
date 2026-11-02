@@ -57,6 +57,15 @@
                             @enderror
                         </div>
                     </div>
+                    <div class="row mt-2">
+                        <div class="col">
+                            <label for="form_four_index">Form four index number</label>
+                            <input type="text" value="{{ $applicant->form_four_indexnumber }}" name="form_four_index" class="form-control @error('form_four_index') is-invalid @enderror" id="form_four_index">
+                            @error("form_four_index")
+                            <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col">
                             <label for="" class="row">.</label>
