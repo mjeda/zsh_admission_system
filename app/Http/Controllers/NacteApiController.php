@@ -7,6 +7,7 @@ use App\Action\viewFeedbackErrorNACTE;
 use App\Action\viewNECTA;
 use App\Models\Course;
 use App\Models\Intake;
+use App\Support\ExternalApi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -88,7 +89,9 @@ class NacteApiController extends Controller
 
         // dd($postData);
 
-        $response = Http::withoutVerifying()->post("https://www.nacte.go.tz/nacteapi/index.php/api/addcorrection", [$postData]);
+        $response = ExternalApi::call(ExternalApi::NACTE, 'kutuma marekebisho ya feedback error', fn () =>
+            Http::withoutVerifying()->timeout(60)->post("https://www.nacte.go.tz/nacteapi/index.php/api/addcorrection", [$postData])
+        );
         if ($response->ok() && $response->json('code') != 400) {
             $message = $response->json('message'); $type = "success";
         } else {
@@ -148,7 +151,9 @@ class NacteApiController extends Controller
             'year' => $year,
         ];
 
-        $response = Http::withoutVerifying()->post("https://www.nacte.go.tz/nacteapi/index.php/api/registerstudent", [$postData]);
+        $response = ExternalApi::call(ExternalApi::NACTE, 'ku-enrol mwanafunzi', fn () =>
+            Http::withoutVerifying()->timeout(60)->post("https://www.nacte.go.tz/nacteapi/index.php/api/registerstudent", [$postData])
+        );
         // dd($response->json());
         if ($response->ok() && $response->json('code') == 200) {
             $message = $response->json('message'); $type = "success";
@@ -162,7 +167,11 @@ class NacteApiController extends Controller
     public function enrolAllStudent($programme, $intake) {
         $programme = Course::findOrFail($programme);
         $intake = Intake::findOrFail($intake);
-        $response = []; $student_enrolled = Session::get('student_enrolled');
+        $student_enrolled = Session::get('student_enrolled') ?? [];
+
+        $succeeded = [];
+        $failed = [];
+        $connection_failures = 0;
 
         foreach ($student_enrolled as $student) {
             $postData = [
@@ -174,15 +183,51 @@ class NacteApiController extends Controller
                 'year' => $student->academic_year,
             ];
 
-            $response = Http::withoutVerifying()->post("https://www.nacte.go.tz/nacteapi/index.php/api/registerstudent", [$postData]);
+            // Kila mwanafunzi anashughulikiwa peke yake; akifeli tunamuweka kwenye
+            // list ya waliofeli na tunaendelea na mwanafunzi anayefuata.
+            try {
+                $response = Http::withoutVerifying()
+                    ->timeout(60)
+                    ->post("https://www.nacte.go.tz/nacteapi/index.php/api/registerstudent", [$postData]);
+
+                $message = $response->json('message') ?? ('HTTP ' . $response->status());
+
+                if ($response->ok() && $response->json('code') == 200) {
+                    $succeeded[] = [
+                        'username' => $student->username ?? $student->user_id,
+                        'message' => $message,
+                    ];
+                } else {
+                    $failed[] = [
+                        'username' => $student->username ?? $student->user_id,
+                        'user_id' => $student->user_id,
+                        'message' => is_array($message) ? json_encode($message) : $message,
+                    ];
+                }
+            } catch (\Throwable $e) {
+                if ($e instanceof \Illuminate\Http\Client\ConnectionException) {
+                    $connection_failures++;
+                }
+                $failed[] = [
+                    'username' => $student->username ?? $student->user_id,
+                    'user_id' => $student->user_id,
+                    'message' => $e->getMessage(),
+                ];
+            }
         }
 
-        if ($response->ok() && $response->json('code') == 200) {
-            $message = $response->json('message'); $type = "success";
-        } else {
-            $message = $response->json('message'); $type = "error";
-        }
+        $total = count($succeeded) + count($failed);
 
-        return redirect()->route('nacte.verified.student')->with($type, $message);
+        // Kama kila mwanafunzi amefeli kwa sababu NACTE haipatikani, onyesha page ya error
+        if ($total > 0 && $connection_failures === $total) {
+            throw new \App\Exceptions\ExternalServiceUnavailableException(ExternalApi::NACTE, 'ku-enrol wanafunzi wote');
+        }
+        $summary = count($succeeded) . " kati ya {$total} wameenrol kikamilifu, " . count($failed) . " wamefeli.";
+        $type = count($failed) > 0 ? 'error' : 'success';
+
+        return redirect()
+            ->route('nacte.verified.student', ['course' => $programme->id, 'intake' => $intake->id])
+            ->with($type, $summary)
+            ->with('enrol_failed', $failed);
     }
 }

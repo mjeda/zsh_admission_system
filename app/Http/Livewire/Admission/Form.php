@@ -198,6 +198,16 @@ class Form extends Component
 
     public function nextStep($step)
     {
+        try {
+            return $this->processStep($step);
+        } catch (\App\Exceptions\ExternalServiceUnavailableException $e) {
+            report($e);
+            return redirect()->route('service.unavailable', ['service' => $e->service, 'action' => $e->action]);
+        }
+    }
+
+    private function processStep($step)
+    {
         if ($step == 2) {
             //check if index number 2 is ok
           if ($this->index_number_2) {

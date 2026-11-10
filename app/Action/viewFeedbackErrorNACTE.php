@@ -4,13 +4,16 @@
 namespace App\Action;
 
 
+use App\Support\ExternalApi;
 use Illuminate\Support\Facades\Http;
 
 class viewFeedbackErrorNACTE
 {
     public function handle($program_id, $intake, $year){
 
-        $response = Http::withoutVerifying()->get('https://www.nacte.go.tz/nacteapi/index.php/api/feedbackcorrection/'.$program_id->code.'-'.$year.'-'.$intake->title.'/HIe3c093414d9442.2e03ef78df72fba8728148bc1f44265b7728116e0d868db0b8795988373d0f7c.511ca4ac5243f8b3943734f371b4033a96bba239');
+        $response = ExternalApi::call(ExternalApi::NACTE, 'kupata feedback errors', fn () =>
+            Http::withoutVerifying()->timeout(60)->get('https://www.nacte.go.tz/nacteapi/index.php/api/feedbackcorrection/'.$program_id->code.'-'.$year.'-'.$intake->title.'/HIe3c093414d9442.2e03ef78df72fba8728148bc1f44265b7728116e0d868db0b8795988373d0f7c.511ca4ac5243f8b3943734f371b4033a96bba239')
+        );
 
 
         if($response->ok()){

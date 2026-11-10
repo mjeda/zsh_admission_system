@@ -19,6 +19,10 @@ return [
 
     'necta_key' => env('NECTA_KEY'),
 
+    // Mawasiliano ya Admission team (yanaonyeshwa kwenye page ya NECTA/NACTE haipatikani)
+    'admission_email' => env('ADMISSION_EMAIL'),
+    'admission_phone' => env('ADMISSION_PHONE'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

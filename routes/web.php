@@ -132,6 +132,12 @@ Route::get('/test', function(){
    $test->handle();
 });
 
+Route::get('/service-unavailable', function () {
+    $service = in_array(request('service'), ['NECTA', 'NACTE']) ? request('service') : 'NECTA/NACTE';
+    $action = \Illuminate\Support\Str::limit((string) request('action', 'kukamilisha ombi lako'), 120);
+    return response()->view('errors.service-unavailable', compact('service', 'action'), 503);
+})->name('service.unavailable');
+
 Route::get('/error-page', function () {
     $error = session('error');
     return view('error-page', compact('error'));

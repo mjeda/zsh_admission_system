@@ -73,6 +73,9 @@ class RegisterComponent extends Component
                     $this->apiError = 'No information found for the provided index number.';
                 }
             }
+        } catch (\App\Exceptions\ExternalServiceUnavailableException $e) {
+            report($e);
+            return redirect()->route('service.unavailable', ['service' => $e->service, 'action' => $e->action]);
         } catch (\Exception $e) {
             $this->failed = true;
             $this->apiError = 'An error occurred while trying to fetch information. Please try again later.';

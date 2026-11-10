@@ -38,6 +38,43 @@
             </div>
         </div>
 
+        @if(session('success'))
+            <div class="col-12"><div class="alert alert-success">{{ session('success') }}</div></div>
+        @endif
+        @if(session('error'))
+            <div class="col-12"><div class="alert alert-danger">{{ session('error') }}</div></div>
+        @endif
+
+        @if(session('enrol_failed') && count(session('enrol_failed')) > 0)
+            <div class="col-12 mb-3">
+                <div class="card border-danger">
+                    <div class="card-header bg-danger text-white">
+                        Wanafunzi ambao hawakuenrol ({{ count(session('enrol_failed')) }})
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm table-bordered mb-0">
+                            <thead>
+                            <tr>
+                                <th width="35px">SN</th>
+                                <th>Username</th>
+                                <th>Message</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach(session('enrol_failed') as $failed)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $failed['username'] }}</td>
+                                    <td class="text-danger">{{ $failed['message'] }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+
             <table class="table  table-striped border-left border-right border-bottom">
                 <thead>
                 <tr>

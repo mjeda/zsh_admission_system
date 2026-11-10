@@ -7,6 +7,7 @@ namespace App\Action;
 use App\Models\Course;
 use App\Models\Intake;
 use App\Models\Selection;
+use App\Support\ExternalApi;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -120,7 +121,9 @@ class submitNECTA
         ];
 
 
-        $response = Http::withoutVerifying()->post($endpoint, [$data]);
+        $response = ExternalApi::call(ExternalApi::NACTE, 'kutuma wanafunzi waliochaguliwa', fn () =>
+            Http::withoutVerifying()->timeout(120)->post($endpoint, [$data])
+        );
 
         Log::alert($response->body());
 

@@ -53,7 +53,14 @@ class getResultJob implements ShouldQueue
 
         $index = $index_number[0].'-'.$index_number[1];
         $year = $index_number[2];
-        $results = $fetchInformationAction->ResultsHandle($index, $year);
+        // Job hii inaitwa ndani ya payment callback (QUEUE_CONNECTION=sync), kwa hiyo
+        // NECTA isipopatikana tuna-log tu; admin anaweza ku-reload result baadae.
+        try {
+            $results = $fetchInformationAction->ResultsHandle($index, $year);
+        } catch (\App\Exceptions\ExternalServiceUnavailableException $e) {
+            report($e);
+            $results = false;
+        }
 
         if($results){
             Result::updateOrCreate(
